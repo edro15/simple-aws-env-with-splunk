@@ -1,0 +1,20 @@
+name: pre-commit
+
+on:
+  pull_request:
+    branches:
+      - main
+
+# Allow only 1 concurrent execution
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - uses: hashicorp/setup-terraform@v3
+      - uses: pre-commit/action@v3.0.1
