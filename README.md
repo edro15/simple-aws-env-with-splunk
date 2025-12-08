@@ -1,157 +1,94 @@
 # Simple AWS Environment with Splunk installed
 
-This Terraform configuration allows you to spin up a simple AWS environment, consisting of a single VPC in a region of choice, one private subnet,
-and one public subnet. The public subnet hosts a single EC2 instance with a Splunk AMI. Furthermore, the environment contains a security group, which
-allows all outbound traffic and inbound traffic for ports 22, 80, 443, and 8000.
+This repository contains Terraform configuration files used to provision an AWS EC2 instance and automatically install Splunk Enterprise.
 
-![Image](./docs/img/diagram.png)
+Key features:
+- An EC2 instance (`t3.large` by default) with Splunk installed (version `9.4.4` by default)
+- Security group configured to allow traffic for your public IP on:
+  - Splunk Web (default port `8000`)
+  - Splunk Management (default port `8089`)
+  - HTTP Event Collector (`HEC`, default port `8088`)
 
-<span style="color:red">**Important information** *(stand October 19, 2022)*:</span> Please don't use this AWS environment with Splunk instance to process sensible data. I did not (yet) implement the necessary security mechanisms and install the necessary certificates. The connection to the Splunk Search head is via HTTP by default, however, this can be toggled to HTTPS in the Splunk Server Settings. 
+This project is intended for:
+- Learning and experimentation with Splunk
+- Demo environments
+- Infrastructure-as-Code practice using Terraform
 
-For deploying an EC2 instance with a **Splunk SOAR** AMI, you can find the Terraform configuration files on the *soar* branch. The process for executing these scripts is identical to the process of executing the scripts for a Splunk Enterprise AMI. Only the input variables for the EC2 instance type and storage have been pre-set to *m5.xlarge* and *200GiB*, since Splunk SOAR doesn't work well with smaller instance types and storage.
+:point_right: It is not intended for production-grade Splunk deployments.
 
 ## Prerequisites
-- An AWS account.
-- An AWS Marketplace subscription for the Splunk Enterprise AMI (If you don't have that yet, don't worry, I will briefly mention what to do in the *Special case* part of the  **Start up the environment** section).
-- A public key for AWS EC2.
+- An AWS account
+- An AWS VPC
+- An AWS subnet
+- A public key for AWS EC2
 
-## Set Up
-Fire up a terminal, navigate to a convenient location on your file system, and clone this repository:
-```console
-~$ git clone https://github.com/sschimper-splunk/simple-aws-env-with-splunk.git
-```
-Navigate to the root level of the repository. 
+## Getting Started
 
-**_NOTE ABOUT SOAR:_**  If you want to deploy Splunk SOAR instead of Enterprise, change to the git branch called *soar*:
-```console
-~$ git switch soar
-```
+```bash
+## Clone this repository
+$~ git clone https://github.com/edro15/simple-aws-env-with-splunk.git
+$~ cd simple-aws-env-with-splunk
 
-Verify that you are on the correct branch with:
-```console
-~$ git branch
-```
-and type *q* to quit out of the view.
+## Set the Environment Variables
+$~ cp .env-example .env
+# Add your values to the required variables
+$~ vi .env
+# Load the environment variables
+$~ source .env
 
-**_NOTE ABOUT SOAR END_** 
-
-Copy the *terraform.tfvars.example* and remove the '.example' extension from the copy.
-
-```console
-~$ cp terraform.tfvars.example terraform.tfvars
+## Configure the deployment
+$~ cp terraform.tfvars.example terraform.tfvars
+# Edit the variables opportunely
+$~ vi terraform.tfvars
 ```
 
-In the now *terraform.tfvars* edit the variables:
+For more details on the variables check [documentation](#documentation) below
 
-- Set 'aws_access_key_id' and 'aws_secret_access_key' according to your own Access Key that is connected to your AWS user.
-- For the EC2 instance, create a key, either with OpenSSL or via the AWS GUI, and set 'key_name' to the name you gave that key.
+:point_right: List of [available Splunk AMIs](https://aws.amazon.com/marketplace/pp/B00PUXWXNE) to verify existing versions
 
-Edit the remaining variables specific to the AWS infrastructure accordingly.
-For example, the following configuration will spin up a VPC with the name "my-vpc" in the "eu-west-1" region (Ireland). The public subnet of that VPC will host an EC2 instance of type "t2.small" with a size of 20 GiB.
-<br>
+### Usage
 
-```
-# AWS Infrastructure Settings ##
+```bash
+# Initialize the terraform providers
+$~ terraform init
 
-# VPC Name 
-vpc_name = "my-vpc"
+# Preview the changes that terraform plans to make to your infrastructure
+$~ terraform plan
 
-/*
-Please select an AZ: 
-    1:eu-west-1, 2:eu-west-3, 3:eu-central-1, 4:us-east-1, 
-    5:us-east-2, 6:us-west-1, 7:us-west-2, 8:ap-southeast-1, 
-    9:ap-southeast-2, 10:sa-east-1
-*/
-available_aws_regions = "1"
-
-# Please select an EC2 instance type: 1:t2.micro, 2:t2.small, 3:t2.medium, 4:t2.large, 5:t2.xlarge, 6:t2.2xlarge
-selected_ec2_instance_type = "2"
-
-# Please enter a number for the EC2 instance volume size in GiB
-root_block_volume_size = "20"
+# Deploy (--auto-approve to avoid being prompted to confirm the changes)
+$~ terraform apply
 ```
 
-Notice that for the Availability Zone and the EC2 instance type, instead of entering the complete name, there is 
-a single digit added. This digit acts as a key to the value that is the name of the AZ or instance type. 
-This is due to the following reason: Alternatively, you can delete this part of the *terraform.tfvars* file. What would happen then is that you would be 
-prompted to provide the input once you spin up the environment. And in this case, entering a single digit is a bit more
-convenient than entering the whole name.
+Splunk URL and access credentials will be displayed as soon as the process is completed.
+> It may take up to ~5 minutes for Splunk to be up and running
 
-## Initialize Terraform
+## Documentation
+<!-- BEGIN_TF_DOCS -->
+<!-- END_TF_DOCS -->
 
-Once you are done with configuring the *terraform.tfvars* file, run the following command to initialize the repository for Terraform, and for 
-downloading the required dependencies:
-
-```console
-~$ terraform init
-```
-
-If you have run the *init* command in the past and want to update the downloaded dependencies to the current versions, you can run the following command: 
-
-```console
-~$ terraform init -upgrade
-```
- 
-## Start up the environment
-
-### Create an execution plan (optional)
-You can create an execution plan. This does not actually perform anything, it is only a way
-for Terraform to, well, create a plan when the time comes when we are going to interact with the real AWS infrastructure.
-For you it can be useful as a feedback of all the changes Terraform is going to apply. 
-Here is the command:
-
-```console
-~$ terraform plan
-```
-
-### Apply the changes
-Once ready, you can spin up the environment with the following command: 
-
-```console
-~$ terraform apply
-```
-
-If you haven't created an execution plan with the *plan* command in the previous step, don't worry,
-Terraform will create it now automatically.
-
-During the *apply*-process, you get prompted to confirm the changes by typing **yes**.
-If you are impatient (like me), you can skip this confirmation by adding the following argument to the command:
-
-```console
-~$ terraform apply --auto-approve
-```
-
-As soon as the process finishes, you are presented with the EC2 Splunk URL, a username, and a password.
-Please wait ~5 minutes for the link to work, it should work as soon as the EC2 instance checks are finished.
-
-
-During the deployment of the AWS infrastrucutre, you can always output this information with:
-
-```console
-~$ terraform output
-```
-
-#### Special case
-If you haven't yet subscribed for the WS Marketplace subscription for the Splunk Enterprise AMI, you will
-be most likely greeted with an Error message like this:
+## Troubleshooting
+If you haven't yet subscribed for the AWS Marketplace subscription for the Splunk Enterprise AMI, you will
+be most likely receive an error message similar to this one:
 
 ![Image](./docs/img/error.png)
 
-This means that the environment is up and running, except for the EC2 instance with the Splunk AMI. In this
-case please spin down the remaining resources with the *destroy* command shown in the **Shut down the environment**
-section, follow the link in the error message, sign up for the Splunk AMI in the AWS console, and perform
-the *appy* command again.
 
-## Shut down the environment
-
-You can destroy the AWS environment with the *destroy* command:
-
-```console
-~$ terraform destroy
+```bash
+# 1. Cancel the deployment (--auto-approve to avoid being prompted to confirm the changes)
+$~ terraform destroy
+# 2. Browse to the link in the error message
+# 3. Sign up for the Splunk AMI in the AWS Console
+# 4. Apply the deployment again
+$~ terraform apply
 ```
 
-Once again, you get prompted to confirm the changes by typing **yes**, which you can omit with this command:
+## Credits
+* [Another terraform module](https://github.com/nvibert/terraform-aws-splunk) to deploy Splunk Enterprise on AWS EC2
+* This project was forked from [this extensive automation](https://github.com/sschimper-splunk/simple-aws-env-with-splunk)
 
-```console
-~$ terraform destroy --auto-approve
-```
+Thank you for the inspiration! :rocket: :heart:
+
+## References
+
+* [Splunk Enterprise AMI](https://help.splunk.com/en/data-management/splunk-enterprise-admin-manual/10.0/meet-the-splunk-ami/about-the-splunk-enterprise-ami)
+* [Terraform CLI](https://developer.hashicorp.com/terraform/cli/run)
