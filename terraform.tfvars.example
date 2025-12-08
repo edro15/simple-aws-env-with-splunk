@@ -1,0 +1,8 @@
+# terraform.tfvars.example
+vpc_id              = "your-vpc"
+subnet_id           = "your-default-subnet"
+aws_account_region  = "us-east-1"
+instance_type       = "t3.large"
+splunk_version      = "9.4.4"
+ticket_id           = "your-id"
+key_name            = "your-public-aws-key-name"
