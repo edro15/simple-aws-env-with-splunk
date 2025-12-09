@@ -19,24 +19,24 @@ variable "aws_account_region" {
 
 variable "instance_type" {
   description = "Provide the instance type (e.g. t3.small, etc)."
-  type    = string
-  default = "t3.large"
+  type        = string
+  default     = "t3.large"
 }
 
 variable "splunk_version" {
   description = "Provide Splunk version."
-  type    = string
-  default = "9.4.4"
+  type        = string
+  default     = "9.4.4"
 }
 
 variable "ticket_id" {
   description = "Provide an ID / name to identify the security group and the EC2."
-  type    = string
-  default = "fdse-3070"
+  type        = string
+  default     = "fdse-3070"
 }
 
 variable "key_name" {
   description = "Provide the name of the AWS public key."
-  type    = string
-  default = "erica-k"
+  type        = string
+  default     = "erica-k"
 }
