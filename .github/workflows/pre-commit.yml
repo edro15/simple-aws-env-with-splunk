@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+    types: [opened, reopened, synchronize]
 
 # Allow only 1 concurrent execution
 concurrency:
