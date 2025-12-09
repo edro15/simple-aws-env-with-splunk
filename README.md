@@ -64,6 +64,56 @@ Splunk URL and access credentials will be displayed as soon as the process is co
 
 ## Documentation
 <!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.52.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.52.0 |
+| <a name="provider_http"></a> [http](#provider\_http) | n/a |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_ec2-instance"></a> [ec2-instance](#module\_ec2-instance) | terraform-aws-modules/ec2-instance/aws | 6.1.5 |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_security_group.poc_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
+| [aws_security_group_rule.hec](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
+| [aws_security_group_rule.in_ssh](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
+| [aws_security_group_rule.mgmt](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
+| [aws_security_group_rule.outbound](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
+| [aws_security_group_rule.web](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
+| [aws_ami.splunk](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
+| [http_http.my_public_ip](https://registry.terraform.io/providers/hashicorp/http/latest/docs/data-sources/http) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_aws_account_region"></a> [aws\_account\_region](#input\_aws\_account\_region) | Provide the desired AWS region (e.g. us-east-1, etc). | `string` | `"eu-west-1"` | no |
+| <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Provide the instance type (e.g. t3.small, etc). | `string` | `"t3.large"` | no |
+| <a name="input_key_name"></a> [key\_name](#input\_key\_name) | Provide the name of the AWS public key. | `string` | `"erica-k"` | no |
+| <a name="input_splunk_version"></a> [splunk\_version](#input\_splunk\_version) | Provide Splunk version. | `string` | `"9.4.4"` | no |
+| <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | Subnet ID. | `string` | `"subnet-fdc73bb4"` | no |
+| <a name="input_ticket_id"></a> [ticket\_id](#input\_ticket\_id) | Provide an ID / name to identify the security group and the EC2. | `string` | `"fdse-3070"` | no |
+| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC ID. | `string` | `"vpc-2c5fa94b"` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_splunk_creds"></a> [splunk\_creds](#output\_splunk\_creds) | n/a |
+| <a name="output_splunk_instances"></a> [splunk\_instances](#output\_splunk\_instances) | n/a |
 <!-- END_TF_DOCS -->
 
 ## Troubleshooting
